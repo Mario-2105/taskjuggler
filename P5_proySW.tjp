@@ -19,7 +19,7 @@ project pSix "Web Game"  2025-12-15 +5m {
   # the project reports. If not specified, the current day will be
   # used, but this will likely be outside of the project range, so it
   # can't be seen in the reports.
-  now 2026-02-25-13:00
+  now 2026-04-09-13:00
   # The currency for all money values is the US Dollar.
   currency "EUR"
 
@@ -68,6 +68,10 @@ resource dev2 "Samantha Müller" {
 resource dev3 "Peter Green" {
   email "kkk@unizar.es"
 }
+resource Mario "GitHub Mario" {
+  email "Mario@unizar.es"
+  limits { dailymax 4h }
+}
 
 # Now we specify the work packages. The whole project is described as
 # a task that contains subtasks. These subtasks are then broken down
@@ -100,7 +104,7 @@ task WMGame "Web & Mobile Game" {
     task tBEd "Back End General Design" {
       # The effort to finish this task is 5 man-days.
       effort 5d
-      allocate dev1
+      allocate dev1, Mario
     }
     task tlogic "Game logic" {
       effort 12d
@@ -128,7 +132,7 @@ task WMGame "Web & Mobile Game" {
     task tGUId "Web GUI Design" {
       effort 9d
       actual:effort 15d
-      allocate dev3
+      allocate dev3, Mario
       journalentry 2026-01-15 "Problems with the GUI design tool" {
         author dev3
         alert yellow
@@ -137,7 +141,7 @@ task WMGame "Web & Mobile Game" {
     }
     task tFEc "Web Front End Construction" {
       effort 15d
-      allocate dev2, dev3
+      allocate dev2, dev3, Mario
       depends WMGame.twebF.tGUId
     }
     task tFEt "Web Front End Test" {
@@ -146,14 +150,48 @@ task WMGame "Web & Mobile Game" {
       depends WMGame.twebF.tFEc
     }    
   }
+  task tmovilF "Movil Front End" {
+    purge chargeset
+    chargeset mFront
+    responsible dev3
+    depends WMGame.tback.tBEd
+    task tGUId "Movil GUI Design" {
+      effort 9d
+      actual:effort 15d
+      allocate dev3, Mario
+      journalentry 2026-01-15 "Problems with the GUI design tool" {
+        author dev3
+        alert yellow
+        summary "The tool used for the GUI design has given me a lot of problems. I recommend to look for other one."
+      }
+    }
+    task tFEc "Movil Front End Construction" {
+      effort 15d
+      allocate dev2, dev3, Mario
+      depends WMGame.tmovilF.tGUId
+    }
+    task tFEt "Movil Front End Test" {
+      effort 6d
+      allocate dev1
+      depends WMGame.tmovilF.tFEc
+    }    
+  }
 
   task ttest "Acceptance tests" {
+      start 2026-05-15
       effort 10d
       allocate boss
       allocate dev2
+      allocate Mario
       actual:effort 20d
       depends WMGame.twebF
+      depends WMGame.tmovilF
       depends WMGame.tback
+      journalentry 2026-04-09 "Acceptance test planning updated" {
+        author boss
+        alert yellow
+        summary "Acceptance tests rescheduled to align with delivery readiness."
+      }
       }
 
     
@@ -223,6 +261,11 @@ textreport frame "" {
     formats html
     center '<[report id="overview"]>'
   }
+
+  textreport initPlan "Initial Plan" {
+    formats html
+    center '<[report id="initialPlan"]>'
+  }
   
   textreport "Status" {
     formats html
@@ -263,6 +306,19 @@ taskreport overview "" {
           revenue, chart { ${TaskTip} }
   # For this report we like to have the abbreviated weekday in front
   # of the date. %a is the tag for this.
+  timeformat "%a %Y-%m-%d"
+  loadunit days
+  hideresource @all
+  balance cost rev
+  caption 'All effort values are in man days.'
+}
+
+taskreport initialPlan "" {
+  scenarios plan
+  headline "Initial Project Plan"
+  columns bsi { title 'WBS' },
+          name, start, end, effort, cost,
+          revenue, chart { ${TaskTip} }
   timeformat "%a %Y-%m-%d"
   loadunit days
   hideresource @all
