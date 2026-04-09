@@ -182,7 +182,7 @@ task tdeploymentB "Backend Cloud deployment"{
   purge chargeset
   chargeset back
   responsible dev4
-  depends WMGame.tback.tBEd
+  depends WMGame.tback.tbackDev
     task tcloudEval "Cloud Provider Evaluation" {
     effort 2d
     allocate dev4
@@ -294,30 +294,26 @@ textreport frame "" {
   formats html
   center '<[report id="initialPlan"]>'
   }
-  textreport "Status" {
+  textreport statusPage "Status" {
     formats html
     center -8<-
-      <[report id="status.dashboard"]>
-      ----
-      <[report id="status.completed"]>
-      ----
-      <[report id="status.ongoing"]>
-      ----
-      <[report id="status.future"]>
+     <[report id="status.dashboard"]>
+     ----
+     <[report id="status.completed"]>
+     ----
+     <[report id="status.ongoing"]>
+     ----
+     <[report id="status.future"]>
     ->8-
   }
 
-  textreport development "Development" {
-    formats html
-    center '<[report id="development"]>'
-  }
-
-  textreport "ContactList" {
+  textreport contactListPage "ContactList" {
     formats html
     title "Contact List"
     center '<[report id="contactList"]>'
   }
-  textreport "ResourceGraph" {
+
+  textreport resourceGraphPage "ResourceGraph" {
     formats html
     title "Resource Graph"
     center '<[report id="resourceGraph"]>'
