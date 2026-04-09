@@ -19,7 +19,7 @@ project pSix "Web Game"  2025-12-15 +5m {
   # the project reports. If not specified, the current day will be
   # used, but this will likely be outside of the project range, so it
   # can't be seen in the reports.
-  now 2026-04-09-13:00
+  now 2026-04-09 12:14
   # The currency for all money values is the US Dollar.
   currency "EUR"
 
@@ -68,8 +68,8 @@ resource dev2 "Samantha Müller" {
 resource dev3 "Peter Green" {
   email "kkk@unizar.es"
 }
-resource Mario "GitHub Mario" {
-  email "Mario@unizar.es"
+resource dev4 "Mario Aránega" {
+  email "897566@unizar.es"
   limits { dailymax 4h }
 }
 
@@ -104,7 +104,7 @@ task WMGame "Web & Mobile Game" {
     task tBEd "Back End General Design" {
       # The effort to finish this task is 5 man-days.
       effort 5d
-      allocate dev1, Mario
+      allocate dev1
     }
     task tlogic "Game logic" {
       effort 12d
@@ -132,7 +132,7 @@ task WMGame "Web & Mobile Game" {
     task tGUId "Web GUI Design" {
       effort 9d
       actual:effort 15d
-      allocate dev3, Mario
+      allocate dev3
       journalentry 2026-01-15 "Problems with the GUI design tool" {
         author dev3
         alert yellow
@@ -141,7 +141,7 @@ task WMGame "Web & Mobile Game" {
     }
     task tFEc "Web Front End Construction" {
       effort 15d
-      allocate dev2, dev3, Mario
+      allocate dev2, dev3
       depends WMGame.twebF.tGUId
     }
     task tFEt "Web Front End Test" {
@@ -150,48 +150,77 @@ task WMGame "Web & Mobile Game" {
       depends WMGame.twebF.tFEc
     }    
   }
+
   task tmobileF "Mobile Front End" {
     purge chargeset
     chargeset mFront
     responsible dev3
     depends WMGame.tback.tBEd
-    task tGUId "Mobile GUI Design" {
+    task tMGUId "Mobile GUI Design" {
       effort 9d
       actual:effort 15d
-      allocate dev3, Mario
+      allocate dev3
       journalentry 2026-01-15 "Problems with the GUI design tool" {
         author dev3
         alert yellow
         summary "The tool used for the GUI design has given me a lot of problems. I recommend to look for other one."
       }
     }
-    task tFEc "Mobile Front End Construction" {
+    task tMFEc "Mobile Front End Construction" {
       effort 15d
-      allocate dev2, dev3, Mario
-      depends WMGame.tmobileF.tGUId
+      allocate dev2, dev3
+      depends WMGame.tmobileF.tMGUId
     }
-    task tFEt "Mobile Front End Test" {
+    task tMFEt "Mobile Front End Test" {
       effort 6d
       allocate dev1
-      depends WMGame.tmobileF.tFEc
+      depends WMGame.tmobileF.tMFEc
     }    
   }
 
+task tdeploymentB "Backend Cloud deployment"{
+  purge chargeset
+  chargeset back
+  responsible dev4
+  depends WMGame.tback.tBEd
+    task tcloudEval "Cloud Provider Evaluation" {
+    effort 2d
+    allocate dev4
+  }
+
+  task tcloudDecision "Cloud Decision" {
+    effort 1d
+    allocate dev4
+    depends WMGame.tdeploymentB.tcloudEval
+  }
+
+  task tcloudDeploy "Back-End Deployment" {
+    effort 4d
+    allocate dev2, dev4
+    depends WMGame.tdeploymentB.tcloudDecision
+  }
+
+  task tcloudTest "Deployment Validation" {
+    effort 2d
+    allocate dev4
+    depends WMGame.tdeploymentB.tcloudDeploy
+    journalentry 2026-04-09 "Acceptance tests postponed" {
+      author boss
+      alert yellow
+      summary "Acceptance tests cannot begin until the deployable web, mobile and cloud backend versions are ready."
+    }
+  }
+}
   task ttest "Acceptance tests" {
-      start 2026-05-15
       effort 10d
       allocate boss
       allocate dev2
-      allocate Mario
       actual:effort 20d
+      minstart 2026-05-15
       depends WMGame.twebF
       depends WMGame.tmobileF
       depends WMGame.tback
-      journalentry 2026-04-09 "Acceptance test planning updated" {
-        author boss
-        alert yellow
-        summary "Acceptance tests rescheduled to align with delivery readiness."
-      }
+      depends WMGame.tdeploymentB
       }
 
     
@@ -261,12 +290,10 @@ textreport frame "" {
     formats html
     center '<[report id="overview"]>'
   }
-
   textreport initPlan "Initial Plan" {
-    formats html
-    center '<[report id="initialPlan"]>'
+  formats html
+  center '<[report id="initialPlan"]>'
   }
-  
   textreport "Status" {
     formats html
     center -8<-
@@ -312,7 +339,6 @@ taskreport overview "" {
   balance cost rev
   caption 'All effort values are in man days.'
 }
-
 taskreport initialPlan "" {
   scenarios plan
   headline "Initial Project Plan"
@@ -325,7 +351,6 @@ taskreport initialPlan "" {
   balance cost rev
   caption 'All effort values are in man days.'
 }
-
 
 # Macro to set the background color of a cell according to the alert
 # level of the task.
