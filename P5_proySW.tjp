@@ -150,12 +150,12 @@ task WMGame "Web & Mobile Game" {
       depends WMGame.twebF.tFEc
     }    
   }
-  task tmovilF "Movil Front End" {
+  task tmobileF "Mobile Front End" {
     purge chargeset
     chargeset mFront
     responsible dev3
     depends WMGame.tback.tBEd
-    task tGUId "Movil GUI Design" {
+    task tGUId "Mobile GUI Design" {
       effort 9d
       actual:effort 15d
       allocate dev3, Mario
@@ -165,15 +165,15 @@ task WMGame "Web & Mobile Game" {
         summary "The tool used for the GUI design has given me a lot of problems. I recommend to look for other one."
       }
     }
-    task tFEc "Movil Front End Construction" {
+    task tFEc "Mobile Front End Construction" {
       effort 15d
       allocate dev2, dev3, Mario
-      depends WMGame.tmovilF.tGUId
+      depends WMGame.tmobileF.tGUId
     }
-    task tFEt "Movil Front End Test" {
+    task tFEt "Mobile Front End Test" {
       effort 6d
       allocate dev1
-      depends WMGame.tmovilF.tFEc
+      depends WMGame.tmobileF.tFEc
     }    
   }
 
@@ -185,7 +185,7 @@ task WMGame "Web & Mobile Game" {
       allocate Mario
       actual:effort 20d
       depends WMGame.twebF
-      depends WMGame.tmovilF
+      depends WMGame.tmobileF
       depends WMGame.tback
       journalentry 2026-04-09 "Acceptance test planning updated" {
         author boss
